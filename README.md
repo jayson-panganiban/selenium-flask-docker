@@ -2,7 +2,7 @@
 
 ### Usage
 
-1. Reopen project in docker container
+1. Reopen project in docker container or build and run
 2. In bash terminal, run python main.py
 
 
