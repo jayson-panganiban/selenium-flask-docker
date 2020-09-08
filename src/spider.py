@@ -14,52 +14,6 @@ class Spider(Driver):
         super().__init__()
         self.base_url = "https://www.copart.com"
 
-    def login(self):
-        self.driver.get(self.base_url + "/login/")
-        self.driver.find_element_by_id("username").send_keys("")
-        self.driver.find_element_by_id("password").send_keys("")
-        self.driver.find_element_by_css_selector(".loginfloatright.margin15").click()
-
-    def get_car_info(self, lot_id, member=False):
-        if member:
-            self.login()
-
-        self.driver.get(f"{self.base_url}/lot/{lot_id}")
-
-        car_info = None
-        try:
-            if self.driver.find_element_by_css_selector('[alt="404"]').is_displayed():
-                return 404
-        except NoSuchElementException:
-            keys = [
-                k.text
-                for k in self.driver.find_elements_by_css_selector("label.left.bold")
-            ]
-            values = [
-                v.text
-                for v in self.driver.find_elements_by_css_selector(
-                    "span.lot-details-desc.right"
-                )
-            ]
-            car_info = dict(zip(keys, values))
-            car_info["Bid Price"] = self.get_element_text(".panel.clr span.bid-price")
-            car_info["Sale Location"] = self.get_element_text(
-                '.panel.clr [data-uname="lotdetailSaleinformationlocationvalue"]'
-            )
-            car_info["Sale Date"] = self.get_element_text(
-                "span.lot-sale-date [ng-if^=validateDate]"
-            )
-            car_info["Sale Status"] = self.get_element_text(
-                "div.clearfix.pt-5.clr .lot-details-desc"
-            )
-        except StaleElementReferenceException:
-            self.get_car_info(lot_id, member)
-        finally:
-            self.driver.delete_all_cookies()
-            self.driver.quit()
-            self.display.stop()
-        return car_info
-
     def get_car_list(self, url=None, is_all_pages=False):
         self.driver.get(url)
         car_list = []
